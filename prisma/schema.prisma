@@ -1,0 +1,67 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Levels {
+  BEGINNER
+  INTERMEDIARY
+  ADVANCED
+}
+
+model Admin {
+  id       String @id @default(uuid())
+  user     String
+  password String
+
+  @@map("admin")
+}
+
+model Project {
+  id           Int           @id @default(autoincrement())
+  image        String
+  name         String
+  description  String
+  link         String?
+
+  projectTools ProjectTool[]
+
+  @@map("projects")
+}
+
+model ProjectTool {
+  projectID Int
+  toolID    Int
+
+  project Project @relation(fields: [projectID], references: [id])
+  tool    Tool    @relation(fields: [toolID], references: [id])
+
+  @@id([projectID, toolID])
+  @@map("project_tool")
+}
+
+model Tool {
+  id          Int    @id @default(autoincrement())
+  name        String
+  icon        String
+  description String
+  level       Levels @default(BEGINNER)
+  categoryID  Int
+
+  projectTools ProjectTool[]
+  category     Category      @relation(fields: [categoryID], references: [id])
+
+  @@map("tool")
+}
+
+model Category {
+  id    Int    @id @default(autoincrement())
+  name  String
+  tools Tool[]
+
+  @@map("category")
+}
